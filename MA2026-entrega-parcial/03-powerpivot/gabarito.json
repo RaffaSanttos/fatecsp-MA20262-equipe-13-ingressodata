@@ -1,0 +1,64 @@
+{
+  "auditoria": {
+    "linhas_brutas": 2091,
+    "vazias": 12,
+    "duplicadas": 49,
+    "invalidas": 30,
+    "validas": 2000
+  },
+  "gerais": {
+    "Faturamento Total": 2037612.5,
+    "Ingressos Vendidos": 3804.0,
+    "Pedidos": 2000.0,
+    "Ticket Médio (por ingresso)": 535.65,
+    "Ticket Médio (por pedido)": 1018.8062,
+    "% Faturamento Turista": 0.4274,
+    "% Compradores Turistas": 0.5869
+  },
+  "por_categoria": {
+    "Cinema": {
+      "Faturamento": 29177.5,
+      "Ingressos": 924.0,
+      "Ticket_Medio": 31.5774,
+      "Faturamento_Turista": 1757.5,
+      "Pct_Faturamento_Turista": 0.0602,
+      "Pct_Compradores_Turistas": 0.0774,
+      "Participacao": 0.0143
+    },
+    "Festival": {
+      "Faturamento": 1460022.5,
+      "Ingressos": 1725.0,
+      "Ticket_Medio": 846.3899,
+      "Faturamento_Turista": 656305.0,
+      "Pct_Faturamento_Turista": 0.4495,
+      "Pct_Compradores_Turistas": 0.5701,
+      "Participacao": 0.7165
+    },
+    "Show": {
+      "Faturamento": 548412.5,
+      "Ingressos": 1155.0,
+      "Ticket_Medio": 474.816,
+      "Faturamento_Turista": 212807.5,
+      "Pct_Faturamento_Turista": 0.388,
+      "Pct_Compradores_Turistas": 0.4517,
+      "Participacao": 0.2691
+    }
+  },
+  "por_praca_origem": {
+    "Belo Horizonte|Local": 298422.5,
+    "Belo Horizonte|Turista Internacional": 31505.0,
+    "Belo Horizonte|Turista Nacional": 185712.5,
+    "Rio de Janeiro|Local": 374945.0,
+    "Rio de Janeiro|Turista Internacional": 48107.5,
+    "Rio de Janeiro|Turista Nacional": 240265.0,
+    "São Paulo|Local": 493375.0,
+    "São Paulo|Turista Internacional": 74825.0,
+    "São Paulo|Turista Nacional": 290455.0
+  },
+  "linhas_dim": {
+    "Dim_Evento": 11,
+    "Dim_Praca": 3,
+    "Dim_Comprador": 932,
+    "Dim_Calendario": 730
+  }
+}

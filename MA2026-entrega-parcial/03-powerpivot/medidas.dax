@@ -1,0 +1,44 @@
+// Medidas DAX do IngressoData Brasil — colar no Power Pivot (Medidas > Nova Medida) ou no Power BI.
+// Tabela de destino: Fato_Vendas_Ingressos. Dim_Calendario deve ser marcada como Tabela de Data.
+
+Faturamento Total :=
+SUM ( Fato_Vendas_Ingressos[Valor_Total] )
+
+Ingressos Vendidos :=
+SUM ( Fato_Vendas_Ingressos[Qtd] )
+
+Pedidos :=
+DISTINCTCOUNT ( Fato_Vendas_Ingressos[ID_Venda] )
+
+Ticket Médio :=
+DIVIDE ( [Faturamento Total], [Ingressos Vendidos] )
+
+Ticket Médio por Pedido :=
+DIVIDE ( [Faturamento Total], [Pedidos] )
+
+Faturamento Turista :=
+CALCULATE ( [Faturamento Total], Fato_Vendas_Ingressos[Origem_Publico] <> "Local" )
+
+% Faturamento Turista :=
+DIVIDE ( [Faturamento Turista], [Faturamento Total] )
+
+Compradores :=
+DISTINCTCOUNT ( Fato_Vendas_Ingressos[Comprador_ID] )
+
+Compradores Turistas :=
+CALCULATE ( [Compradores], Fato_Vendas_Ingressos[Origem_Publico] <> "Local" )
+
+% Compradores Turistas :=
+DIVIDE ( [Compradores Turistas], [Compradores] )
+
+Participação Categoria :=
+DIVIDE ( [Faturamento Total], CALCULATE ( [Faturamento Total], ALL ( Fato_Vendas_Ingressos[Categoria] ), ALL ( Dim_Evento[Categoria] ) ) )
+
+Faturamento Ao Ar Livre :=
+CALCULATE ( [Faturamento Total], Dim_Evento[Ao_Ar_Livre] = "Sim" )
+
+Faturamento Mês Anterior :=
+CALCULATE ( [Faturamento Total], DATEADD ( Dim_Calendario[Data], -1, MONTH ) )
+
+Variação Mensal % :=
+DIVIDE ( [Faturamento Total] - [Faturamento Mês Anterior], [Faturamento Mês Anterior] )

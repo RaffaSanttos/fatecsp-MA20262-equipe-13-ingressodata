@@ -1,0 +1,15 @@
+{
+  "name": "IngressoData Brasil",
+  "dataColors": ["#1F3A5F", "#E07A1F", "#2E8B57", "#A51C1C", "#6C8EBF", "#8C6BB1", "#C9A227", "#5B6770"],
+  "background": "#FFFFFF",
+  "foreground": "#1B1F24",
+  "tableAccent": "#1F3A5F",
+  "good": "#2E8B57",
+  "neutral": "#C9A227",
+  "bad": "#A51C1C",
+  "textClasses": {
+    "title": {"fontFace": "Segoe UI Semibold", "fontSize": 14, "color": "#1F3A5F"},
+    "label": {"fontFace": "Segoe UI", "fontSize": 10, "color": "#1B1F24"},
+    "callout": {"fontFace": "Segoe UI Semibold", "fontSize": 28, "color": "#1F3A5F"}
+  }
+}
