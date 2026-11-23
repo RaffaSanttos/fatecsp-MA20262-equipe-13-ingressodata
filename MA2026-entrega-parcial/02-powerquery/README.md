@@ -18,6 +18,16 @@ Automatiza a mesma limpeza da aba Tratamento, lendo direto os arquivos de `01-ex
 | Vendas_SP / Vendas_RJ / Vendas_MG | Fontes brutas (2 Excel + 1 CSV) |
 | Fato_Vendas_Ingressos | Empilha, remove vazias e duplicadas, padroniza, valida e classifica o público |
 | Dim_Evento / Dim_Praca / Dim_Comprador / Dim_Calendario | Dimensões do Star Schema |
+| Web_Visitantes_Pais | **Web scraping** (`Web.Page`): tabela "Visitantes que chegaram ao Brasil, por país de residência" da página [Turismo no Brasil](https://pt.wikipedia.org/wiki/Turismo_no_Brasil), em formato largo (uma coluna por ano) |
+| Fato_Visitantes_Internacionais | **Unpivot** (`Table.UnpivotOtherColumns`) das colunas de ano, limpeza de números ("3 386 823") e notas de rodapé, remoção de Total/Outros e padronização do país pelo `DePara_Pais` |
+
+### Fonte web e unpivot
+
+`Web_Visitantes_Pais` e `Fato_Visitantes_Internacionais` dão contexto externo à pergunta central: quantos turistas de cada país chegam ao Brasil por ano. A coluna `Pais_Na_Base_de_Vendas` marca os países que também aparecem entre os compradores (Argentina, Chile, EUA, Portugal).
+
+- Na primeira atualização o Excel pede o nível de privacidade da fonte web: escolha **Público**.
+- Carregue `Fato_Visitantes_Internacionais` como **Somente Conexão + Adicionar ao Modelo de Dados** se quiser usá-la em gráficos. `Web_Visitantes_Pais` fica como Somente Conexão.
+- Resultado esperado: uma linha por país e ano (23 países × 15 anos, de 2011 a 2025, conforme a página na data da entrega).
 
 ## Conferência depois de carregar
 
