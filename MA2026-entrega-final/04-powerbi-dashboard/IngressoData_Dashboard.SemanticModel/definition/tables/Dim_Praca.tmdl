@@ -1,0 +1,48 @@
+table Dim_Praca
+	lineageTag: 6089960f-0e61-58a8-953c-8336ea85489c
+
+	column Cidade
+		dataType: string
+		lineageTag: 3a31cdc7-f1be-5540-b77d-394164f6e677
+		summarizeBy: none
+		sourceColumn: Cidade
+
+	column UF
+		dataType: string
+		lineageTag: c6012f52-f7e3-5e18-b839-afe4b220d238
+		summarizeBy: none
+		sourceColumn: UF
+
+	column Regiao
+		dataType: string
+		lineageTag: 142d01df-756e-5531-b565-c067fd3a1663
+		summarizeBy: none
+		sourceColumn: Regiao
+
+	column Latitude
+		dataType: double
+		dataCategory: Latitude
+		lineageTag: 51b90d4f-fcc3-592d-8a71-33f7021f0f97
+		summarizeBy: none
+		sourceColumn: Latitude
+
+	column Longitude
+		dataType: double
+		dataCategory: Longitude
+		lineageTag: b6490ffa-9ad6-571f-90ad-41bbae0b8808
+		summarizeBy: none
+		sourceColumn: Longitude
+
+	partition Dim_Praca = m
+		mode: import
+		source =
+			// Dimensão de praças (cidades-sede) com coordenadas usadas na API de clima
+			let
+			    Fonte = fnLerAba("tabelas_apoio.xlsx", "Cadastro_Pracas"),
+			    Tipos = Table.TransformColumnTypes(Fonte, {
+			        {"Cidade", type text}, {"UF", type text}, {"Regiao", type text},
+			        {"Latitude", type number}, {"Longitude", type number}})
+			in
+			    Tipos
+
+	annotation PBI_ResultType = Table

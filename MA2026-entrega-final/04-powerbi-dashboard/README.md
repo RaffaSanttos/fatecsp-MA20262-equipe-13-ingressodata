@@ -1,8 +1,30 @@
 # 04-powerbi-dashboard · Etapa 6: Dashboard Power BI
 
-O `.pbix` só pode ser criado no Power BI Desktop (Windows). Este documento é a especificação para montar o painel em cerca de 1 hora, já com os dados e medidas prontos.
+**Arquivo principal:** `IngressoData_Dashboard.pbix` (3 páginas, montado e atualizado no Power BI Desktop em 22/11/2026).
 
-## Montagem
+| Arquivo | Conteúdo |
+|---|---|
+| `IngressoData_Dashboard.pbix` | Dashboard final com os dados já carregados |
+| `IngressoData_Dashboard.pbip` + pastas `.Report` e `.SemanticModel` | O mesmo relatório em formato de projeto (texto): modelo em TMDL e visuais em JSON, bom para versionar no Git |
+| `prints/` | Captura de cada página |
+| `IngressoData_tema.json` | Tema de cores aplicado ao relatório |
+
+O projeto é gerado por `04-documentacao/scripts/build_pbip.py` a partir das próprias consultas `.pq` (Power Query e APIs) e das medidas de `medidas.dax`, com 3 medidas a mais: Dólar Médio, Ingressos Turista Internacional e Visitantes Internacionais.
+
+### Conferência (bate com o gabarito)
+
+Faturamento Total R$ 2,04 mi (R$ 2.037.612,50) · Ingressos 3.804 · Ticket Médio R$ 535,65 · % Faturamento Turista 42,7%.
+
+![Visão Geral](prints/1_visao_geral.jpg)
+![Público Turista](prints/2_publico_turista.jpg)
+![Fatores Externos](prints/3_fatores_externos.jpg)
+
+### Para atualizar em outro computador
+
+1. Abra o `.pbix` e vá em **Transformar dados > Editar parâmetros**: aponte `pPastaDados` para a pasta `01-excel/dados-brutos` do seu computador (terminando com `\`).
+2. **Atualizar**. Na primeira vez, escolha acesso **Anônimo** para Wikipédia, Banco Central e Open-Meteo, e nível de privacidade **Público** para todas as fontes.
+
+## Montagem manual (referência)
 
 1. **Obter Dados > Excel** e carregar o modelo, ou colar as consultas `.pq` em **Transformar Dados > Nova Fonte > Consulta Nula** (mesmos nomes do Excel).
 2. Criar os 4 relacionamentos (ver `03-powerpivot`) e marcar `Dim_Calendario` como tabela de data.

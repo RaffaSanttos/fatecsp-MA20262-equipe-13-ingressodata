@@ -6,7 +6,16 @@
 | `medidas.dax` | As 14 medidas prontas para colar no Power Pivot ou no Power BI |
 | `gabarito.json` | Números esperados para conferir o modelo |
 
-## Montagem (Excel para Windows; o Excel para Mac não tem Power Pivot)
+## Montagem com um clique (macro `mdlMontarModelo.bas`)
+
+1. Abra `IngressoData_03_PowerPivot.xlsx` no Excel para Windows, Alt + F11 > Arquivo > Importar Arquivo > `mdlMontarModelo.bas`.
+2. Alt + F8 > `MontarModeloPowerPivot`. A macro adiciona as 5 tabelas ao Modelo de Dados, cria os 4 relacionamentos e as 14 medidas DAX (com formato R$ e %), cria a aba `Conferencia` com uma Tabela Dinâmica do modelo e salva `IngressoData_03_PowerPivot.xlsm`.
+3. Único passo manual: Power Pivot > Gerenciar > `Dim_Calendario` > Design > **Marcar como Tabela de Data** (o Excel não expõe esse comando ao VBA).
+4. Confira na aba `Conferencia`: Faturamento Total R$ 2.037.612,50, Ticket Médio R$ 535,65, % Faturamento Turista 42,7%.
+
+O mesmo modelo (tabelas, relacionamentos e medidas) já está montado e conferido no Power BI: `MA2026-entrega-final/04-powerbi-dashboard/IngressoData_Dashboard.pbix`.
+
+## Montagem manual (Excel para Windows; o Excel para Mac não tem Power Pivot)
 
 1. Caminho principal: carregar as consultas do `02-powerquery` no Modelo de Dados. Alternativa: nesta planilha, clique em cada tabela e use **Power Pivot > Adicionar ao Modelo de Dados**.
 2. **Power Pivot > Gerenciar > Exibição de Diagrama**: crie os 4 relacionamentos da aba `Modelo_e_DAX` (todas as dimensões ligadas à fato, muitos para um).

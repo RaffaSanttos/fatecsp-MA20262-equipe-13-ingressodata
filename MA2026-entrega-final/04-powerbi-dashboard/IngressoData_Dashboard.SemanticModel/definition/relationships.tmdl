@@ -1,0 +1,15 @@
+relationship b4a37b2d-17ed-5dd2-8e97-091c6148a4ef
+	fromColumn: Fato_Vendas_Ingressos.Evento
+	toColumn: Dim_Evento.Evento
+
+relationship 313b04fd-52c0-58ef-962e-08d10a58d66b
+	fromColumn: Fato_Vendas_Ingressos.Cidade_Evento
+	toColumn: Dim_Praca.Cidade
+
+relationship f7128466-3752-5d1f-9044-e0009f88992d
+	fromColumn: Fato_Vendas_Ingressos.Comprador_ID
+	toColumn: Dim_Comprador.Comprador_ID
+
+relationship 868a27b9-6248-5b2a-a032-525388abd560
+	fromColumn: Fato_Vendas_Ingressos.Data_Venda
+	toColumn: Dim_Calendario.Data

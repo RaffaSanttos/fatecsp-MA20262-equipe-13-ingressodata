@@ -33,7 +33,7 @@ MA2026-projeto-pratico/
     ├── 01-vba/                 macros de relatório diário/semanal (.bas)
     ├── 02-bancodedados-sql/    DDL, carga e consultas (SQLite e PostgreSQL)
     ├── 03-api-web/             câmbio (BCB/PTAX) e clima (Open-Meteo)
-    └── 04-powerbi-dashboard/   especificação do painel e tema do Power BI
+    └── 04-powerbi-dashboard/   IngressoData_Dashboard.pbix (3 páginas), projeto .pbip, prints e tema
 ```
 
 ## Modelo dimensional (Star Schema)

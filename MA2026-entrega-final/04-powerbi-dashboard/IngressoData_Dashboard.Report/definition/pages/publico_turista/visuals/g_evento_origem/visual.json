@@ -1,0 +1,96 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.4.0/schema.json",
+  "name": "g_evento_origem",
+  "position": {
+    "x": 20,
+    "y": 20,
+    "z": 0,
+    "height": 620,
+    "width": 940,
+    "tabOrder": 0
+  },
+  "visual": {
+    "visualType": "hundredPercentStackedBarChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Dim_Evento"
+                    }
+                  },
+                  "Property": "Evento"
+                }
+              },
+              "queryRef": "Dim_Evento.Evento",
+              "nativeQueryRef": "Evento"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Fato_Vendas_Ingressos"
+                    }
+                  },
+                  "Property": "Faturamento Total"
+                }
+              },
+              "queryRef": "Fato_Vendas_Ingressos.Faturamento Total",
+              "nativeQueryRef": "Faturamento Total"
+            }
+          ]
+        },
+        "Series": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Fato_Vendas_Ingressos"
+                    }
+                  },
+                  "Property": "Origem_Publico"
+                }
+              },
+              "queryRef": "Fato_Vendas_Ingressos.Origem_Publico",
+              "nativeQueryRef": "Origem_Publico"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Participação de cada público no faturamento por evento'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

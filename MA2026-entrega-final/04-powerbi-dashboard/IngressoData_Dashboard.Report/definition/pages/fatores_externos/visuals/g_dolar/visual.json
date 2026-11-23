@@ -1,0 +1,114 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.4.0/schema.json",
+  "name": "g_dolar",
+  "position": {
+    "x": 20,
+    "y": 20,
+    "z": 0,
+    "height": 520,
+    "width": 1880,
+    "tabOrder": 0
+  },
+  "visual": {
+    "visualType": "lineClusteredColumnComboChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Dim_Calendario"
+                    }
+                  },
+                  "Property": "Ano_Mes"
+                }
+              },
+              "queryRef": "Dim_Calendario.Ano_Mes",
+              "nativeQueryRef": "Ano_Mes"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Fato_Vendas_Ingressos"
+                    }
+                  },
+                  "Property": "Ingressos Vendidos"
+                }
+              },
+              "queryRef": "Fato_Vendas_Ingressos.Ingressos Vendidos",
+              "nativeQueryRef": "Ingressos Vendidos"
+            }
+          ]
+        },
+        "Y2": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Fato_Vendas_Ingressos"
+                    }
+                  },
+                  "Property": "Dólar Médio"
+                }
+              },
+              "queryRef": "Fato_Vendas_Ingressos.Dólar Médio",
+              "nativeQueryRef": "Dólar Médio"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "Dim_Calendario"
+                  }
+                },
+                "Property": "Ano_Mes"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Ingressos vendidos x dólar médio no dia da venda'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

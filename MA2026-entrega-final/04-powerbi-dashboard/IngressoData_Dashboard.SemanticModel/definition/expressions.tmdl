@@ -1,0 +1,267 @@
+expression pPastaDados = "C:\Dev\fatecsp-MA20262-equipe-13-ingressodata\MA2026-entrega-parcial\01-excel\dados-brutos\" meta [IsParameterQuery = true, Type = "Text", IsParameterQueryRequired = true]
+	lineageTag: 10bf6524-b3a3-5207-8f01-69ab8eda6c6d
+
+	annotation PBI_ResultType = Text
+
+expression fnTratarData =
+		// Converte qualquer formato de data das planilhas brutas em data:
+		// data/datahora do Excel (RJ), texto dd/mm/aaaa (SP) e texto aaaa-mm-dd (MG)
+		(valor as any) as nullable date =>
+		let
+		    Texto = if valor = null then "" else Text.Trim(Text.From(valor)),
+		    Resultado =
+		        if valor = null or Texto = "" then null
+		        else if Value.Is(valor, type date) then valor
+		        else if Value.Is(valor, type datetime) then Date.From(valor)
+		        else if Value.Is(valor, type number) then Date.From(valor)
+		        else if Text.Middle(Texto, 4, 1) = "-" then
+		            #date(
+		                Number.From(Text.Start(Texto, 4)),
+		                Number.From(Text.Middle(Texto, 5, 2)),
+		                Number.From(Text.Middle(Texto, 8, 2)))
+		        else
+		            #date(
+		                Number.From(Text.Middle(Texto, 6, 4)),
+		                Number.From(Text.Middle(Texto, 3, 2)),
+		                Number.From(Text.Start(Texto, 2)))
+		in
+		    Resultado
+	lineageTag: a6dad598-9d82-506e-ae2d-cecc16a637c9
+
+	annotation PBI_ResultType = Function
+
+expression fnTratarNumero =
+		// Converte "R$ 1.250,00", "450,00", número ou vazio em número (vazio vira 0 e é descartado depois)
+		(valor as any) as number =>
+		let
+		    Texto = if valor = null or Value.Is(valor, type number) then "" else Text.Trim(Text.Replace(Text.From(valor), "R$", "")),
+		    Resultado =
+		        if valor = null then 0
+		        else if Value.Is(valor, type number) then valor
+		        else if Texto = "" then 0
+		        else try Number.FromText(Texto, "pt-BR") otherwise 0
+		in
+		    Resultado
+	lineageTag: aa2cb368-1769-5d51-bd47-fd01685b5c95
+
+	annotation PBI_ResultType = Function
+
+expression fnLerAba =
+		// Lê uma aba de um arquivo .xlsx da pasta de dados, já com a primeira linha como cabeçalho
+		(arquivo as text, aba as text) as table =>
+		let
+		    Fonte = Excel.Workbook(File.Contents(pPastaDados & arquivo), true, true),
+		    Dados = Fonte{[Item = aba, Kind = "Sheet"]}[Data]
+		in
+		    Dados
+	lineageTag: 1bb6dd56-b7e3-53b4-8409-eb958c66bc79
+
+	annotation PBI_ResultType = Function
+
+expression DePara_Categoria =
+		// Tabela de padronização (Original em minúsculas -> Padrao). Editar em tabelas_apoio.xlsx
+		let
+		    Fonte = fnLerAba("tabelas_apoio.xlsx", "DePara_Categoria"),
+		    Tipos = Table.TransformColumnTypes(Fonte, {{"Original", type text}, {"Padrao", type text}})
+		in
+		    Tipos
+	lineageTag: c6c41f44-63a8-5e6f-9446-4e6f63b2cfc4
+
+	annotation PBI_ResultType = Table
+
+expression DePara_Cidade =
+		// Tabela de padronização (Original em minúsculas -> Padrao). Editar em tabelas_apoio.xlsx
+		let
+		    Fonte = fnLerAba("tabelas_apoio.xlsx", "DePara_Cidade"),
+		    Tipos = Table.TransformColumnTypes(Fonte, {{"Original", type text}, {"Padrao", type text}})
+		in
+		    Tipos
+	lineageTag: 29f2d3e7-ce0a-57f8-b31e-0aa13a766f80
+
+	annotation PBI_ResultType = Table
+
+expression DePara_Pais =
+		// Tabela de padronização (Original em minúsculas -> Padrao). Editar em tabelas_apoio.xlsx
+		let
+		    Fonte = fnLerAba("tabelas_apoio.xlsx", "DePara_Pais"),
+		    Tipos = Table.TransformColumnTypes(Fonte, {{"Original", type text}, {"Padrao", type text}})
+		in
+		    Tipos
+	lineageTag: bca59cd0-3375-5ac5-80c1-e1f9bdfab160
+
+	annotation PBI_ResultType = Table
+
+expression Vendas_MG =
+		// Vendas brutas de MG: CSV separado por ";" em UTF-8
+		let
+		    Fonte = Csv.Document(
+		        File.Contents(pPastaDados & "vendas_MG.csv"),
+		        [Delimiter = ";", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+		    Cabecalhos = Table.PromoteHeaders(Fonte, [PromoteAllScalars = true]),
+		    ComOrigem = Table.AddColumn(Cabecalhos, "Arquivo_Origem", each "vendas_MG.csv", type text)
+		in
+		    ComOrigem
+	lineageTag: f421a187-22cd-599c-8829-bd9beeaed7b6
+
+	annotation PBI_ResultType = Table
+
+expression Vendas_RJ =
+		// Vendas brutas de RJ (sem tratamento; o tratamento fica em Vendas_Base)
+		let
+		    Fonte = fnLerAba("vendas_RJ.xlsx", "Vendas"),
+		    ComOrigem = Table.AddColumn(Fonte, "Arquivo_Origem", each "vendas_RJ.xlsx", type text)
+		in
+		    ComOrigem
+	lineageTag: 76d51fc2-8a3f-54d8-9a8e-c5d6cc729c2d
+
+	annotation PBI_ResultType = Table
+
+expression Vendas_SP =
+		// Vendas brutas de SP (sem tratamento; o tratamento fica em Vendas_Base)
+		let
+		    Fonte = fnLerAba("vendas_SP.xlsx", "Vendas"),
+		    ComOrigem = Table.AddColumn(Fonte, "Arquivo_Origem", each "vendas_SP.xlsx", type text)
+		in
+		    ComOrigem
+	lineageTag: 1c7b3a72-c147-5ded-a747-7a7956612fdd
+
+	annotation PBI_ResultType = Table
+
+expression Vendas_Base =
+		// Tabela fato: consolida SP + RJ + MG, limpa, padroniza e classifica o público
+		let
+		    Empilhado = Table.Combine({Vendas_SP, Vendas_RJ, Vendas_MG}),
+		    SemVazias = Table.SelectRows(Empilhado, each [ID_Venda] <> null and Text.Trim(Text.From([ID_Venda])) <> ""),
+		    SemDuplicadas = Table.Distinct(SemVazias, {"ID_Venda"}),
+
+		    MapaCategoria = Record.FromList(DePara_Categoria[Padrao], DePara_Categoria[Original]),
+		    MapaCidade = Record.FromList(DePara_Cidade[Padrao], DePara_Cidade[Original]),
+		    MapaPais = Record.FromList(DePara_Pais[Padrao], DePara_Pais[Original]),
+		    Padronizar = (mapa as record, valor as any) as text =>
+		        Record.FieldOrDefault(mapa, Text.Lower(Text.Trim(Text.From(valor))), "REVISAR"),
+
+		    Tratada = Table.TransformColumns(SemDuplicadas, {
+		        {"ID_Venda", each Text.Trim(Text.From(_)), type text},
+		        {"Data_Venda", fnTratarData, type date},
+		        {"Data_Evento", fnTratarData, type date},
+		        {"Evento", each Text.Trim(Text.From(_)), type text},
+		        {"Categoria", each Padronizar(MapaCategoria, _), type text},
+		        {"Cidade_Evento", each Padronizar(MapaCidade, _), type text},
+		        {"Tipo_Ingresso", each Text.Trim(Text.From(_)), type text},
+		        {"Qtd", fnTratarNumero, Int64.Type},
+		        {"Valor_Unitario", fnTratarNumero, Currency.Type},
+		        {"Canal", each Text.Trim(Text.From(_)), type text},
+		        {"Comprador_ID", each Text.Trim(Text.From(_)), type text},
+		        {"Cidade_Comprador", each Padronizar(MapaCidade, _), type text},
+		        {"UF_Comprador", each Text.Upper(Text.Trim(Text.From(_))), type text},
+		        {"Pais_Comprador", each Padronizar(MapaPais, _), type text}
+		    }),
+		    Validas = Table.SelectRows(Tratada, each [Qtd] > 0 and [Valor_Unitario] > 0),
+		    ComTotal = Table.AddColumn(Validas, "Valor_Total", each [Qtd] * [Valor_Unitario], Currency.Type),
+		    ComOrigemPublico = Table.AddColumn(ComTotal, "Origem_Publico", each
+		        if [Pais_Comprador] <> "Brasil" then "Turista Internacional"
+		        else if [Cidade_Comprador] = [Cidade_Evento] then "Local"
+		        else "Turista Nacional", type text),
+		    Final = Table.SelectColumns(ComOrigemPublico, {
+		        "ID_Venda", "Data_Venda", "Data_Evento", "Evento", "Categoria", "Cidade_Evento", "Tipo_Ingresso",
+		        "Qtd", "Valor_Unitario", "Valor_Total", "Canal", "Comprador_ID", "Cidade_Comprador",
+		        "UF_Comprador", "Pais_Comprador", "Origem_Publico", "Arquivo_Origem"})
+		in
+		    Final
+	lineageTag: d6ae2902-2565-5caa-a1c4-5d457f1f4d97
+
+	annotation PBI_ResultType = Table
+
+expression Dim_Cambio_BCB =
+		// Cotação PTAX do dólar (Banco Central, API Olinda/OData, sem chave).
+		// Uma linha por dia do calendário: fins de semana e feriados repetem a última cotação útil.
+		let
+		    Inicio = Date.ToText(List.Min(Dim_Calendario[Data]), "MM-dd-yyyy"),
+		    Fim = Date.ToText(List.Min({List.Max(Dim_Calendario[Data]), Date.From(DateTime.LocalNow())}), "MM-dd-yyyy"),
+		    Url = "https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/"
+		        & "CotacaoDolarPeriodo(dataInicial=@dataInicial,dataFinalCotacao=@dataFinalCotacao)"
+		        & "?@dataInicial='" & Inicio & "'&@dataFinalCotacao='" & Fim & "'"
+		        & "&$format=json&$select=cotacaoCompra,cotacaoVenda,dataHoraCotacao",
+		    Resposta = Json.Document(Web.Contents(Url)),
+		    Cotacoes = Table.FromRecords(Resposta[value]),
+		    ComData = Table.AddColumn(Cotacoes, "Data", each Date.FromText(Text.Start([dataHoraCotacao], 10)), type date),
+		    UltimaDoDia = Table.Group(ComData, {"Data"}, {
+		        {"Dolar_Compra", each List.Last([cotacaoCompra]), type number},
+		        {"Dolar_Venda", each List.Last([cotacaoVenda]), type number}}),
+		    Calendario = Table.SelectColumns(Dim_Calendario, {"Data"}),
+		    Juntado = Table.NestedJoin(Calendario, {"Data"}, UltimaDoDia, {"Data"}, "Cotacao", JoinKind.LeftOuter),
+		    Expandido = Table.ExpandTableColumn(Juntado, "Cotacao", {"Dolar_Compra", "Dolar_Venda"}),
+		    Ordenado = Table.Sort(Expandido, {{"Data", Order.Ascending}}),
+		    Preenchido = Table.FillDown(Ordenado, {"Dolar_Compra", "Dolar_Venda"}),
+		    SemVazios = Table.SelectRows(Preenchido, each [Dolar_Venda] <> null),
+		    Tipos = Table.TransformColumnTypes(SemVazios, {{"Data", type date}, {"Dolar_Compra", type number}, {"Dolar_Venda", type number}})
+		in
+		    Tipos
+	lineageTag: 7d91094c-bacf-56c1-8c4a-ba0c1a44fa43
+
+	annotation PBI_ResultType = Table
+
+expression fnClimaPraca =
+		// Clima diário histórico de uma praça (Open-Meteo Archive API, gratuita e sem chave)
+		(cidade as text, latitude as number, longitude as number, inicio as date, fim as date) as table =>
+		let
+		    Url = "https://archive-api.open-meteo.com/v1/archive"
+		        & "?latitude=" & Number.ToText(latitude, "0.0000", "en-US")
+		        & "&longitude=" & Number.ToText(longitude, "0.0000", "en-US")
+		        & "&start_date=" & Date.ToText(inicio, "yyyy-MM-dd")
+		        & "&end_date=" & Date.ToText(fim, "yyyy-MM-dd")
+		        & "&daily=temperature_2m_max,precipitation_sum&timezone=America%2FSao_Paulo",
+		    // A API devolve "deflate" no formato zlib, que o Power Query não decodifica ("Dados inválidos encontrados
+		    // durante a decodificação"). Pedir gzip resolve.
+		    Diario = Json.Document(Web.Contents(Url, [Headers = [#"Accept-Encoding" = "gzip"]]))[daily],
+		    Tabela = Table.FromColumns(
+		        {Diario[time], Diario[temperature_2m_max], Diario[precipitation_sum]},
+		        {"Data", "Temp_Max_C", "Chuva_mm"}),
+		    ComCidade = Table.AddColumn(Tabela, "Cidade", each cidade, type text),
+		    Tipos = Table.TransformColumnTypes(ComCidade, {{"Data", type date}, {"Temp_Max_C", type number}, {"Chuva_mm", type number}}, "en-US")
+		in
+		    Tipos
+	lineageTag: 0912e070-d761-56f1-9218-51971635b5df
+
+	annotation PBI_ResultType = Function
+
+expression Fato_Clima =
+		// Clima diário das 3 praças no período das vendas. Chave para o modelo: Cidade + Data
+		let
+		    Inicio = List.Min(Vendas_Base[Data_Venda]),
+		    Fim = List.Max(Vendas_Base[Data_Evento]),
+		    PorPraca = Table.AddColumn(Dim_Praca, "Clima", each fnClimaPraca([Cidade], [Latitude], [Longitude], Inicio, Fim)),
+		    Combinado = Table.Combine(PorPraca[Clima]),
+		    ComChave = Table.AddColumn(Combinado, "Chave_Cidade_Data", each [Cidade] & "|" & Date.ToText([Data], "yyyy-MM-dd"), type text),
+		    ComFaixa = Table.AddColumn(ComChave, "Condicao", each
+		        if [Chuva_mm] = null then "Sem dado"
+		        else if [Chuva_mm] >= 10 then "Chuva forte"
+		        else if [Chuva_mm] >= 1 then "Chuva fraca"
+		        else "Seco", type text)
+		in
+		    ComFaixa
+	lineageTag: 19917d54-069b-5315-bb7e-f09ae0c00743
+
+	annotation PBI_ResultType = Table
+
+expression Web_Visitantes_Pais =
+		// Web scraping: tabela "Visitantes que chegaram ao Brasil, por país de residência" da página
+		// Turismo no Brasil (Wikipédia, dados do Ministério do Turismo). A tabela vem no formato LARGO:
+		// uma linha por país e uma coluna por ano (2011 a 2025). O unpivot fica em Fato_Visitantes_Internacionais.
+		let
+		    Url = "https://pt.wikipedia.org/wiki/Turismo_no_Brasil",
+		    Pagina = Web.Page(Web.Contents(Url)),
+		    Candidatas = Table.SelectRows(Pagina, each
+		        [Caption] <> null and Text.Contains(Text.From([Caption]), "por país de residência")),
+		    Dados =
+		        if Table.IsEmpty(Candidatas)
+		        then error "Tabela de visitantes por país não encontrada. Confira se a página da Wikipédia mudou."
+		        else Candidatas{0}[Data],
+		    ComCabecalho =
+		        if Table.HasColumns(Dados, "País") then Dados
+		        else Table.PromoteHeaders(Dados, [PromoteAllScalars = true])
+		in
+		    ComCabecalho
+	lineageTag: 621299d1-90ea-5984-b377-f6ccd0d0bf3d
+
+	annotation PBI_ResultType = Table

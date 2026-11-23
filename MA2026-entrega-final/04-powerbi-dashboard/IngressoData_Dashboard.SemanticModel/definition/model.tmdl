@@ -1,0 +1,19 @@
+model Model
+	culture: pt-BR
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: pt-BR
+	valueFilterBehavior: independent
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+ref table Fato_Vendas_Ingressos
+ref table Dim_Evento
+ref table Dim_Praca
+ref table Dim_Comprador
+ref table Dim_Calendario
+ref table Fato_Visitantes_Internacionais
+
+ref cultureInfo pt-BR

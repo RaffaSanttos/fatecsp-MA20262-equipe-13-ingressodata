@@ -1,0 +1,71 @@
+table Fato_Visitantes_Internacionais
+	lineageTag: 3d81902d-baf0-579e-a2b4-2b93eeddee3a
+
+	column Pais
+		dataType: string
+		lineageTag: 65984020-a52b-5cb4-9c2d-a9b72aa5ff79
+		summarizeBy: none
+		sourceColumn: Pais
+
+	column Pais_Original
+		dataType: string
+		lineageTag: dce1c420-ddbf-522e-8f32-526ad13b4b58
+		summarizeBy: none
+		sourceColumn: Pais_Original
+
+	column Ano
+		dataType: int64
+		formatString: 0
+		lineageTag: fcdc5ce4-7e52-5398-ac46-5c8264058df4
+		summarizeBy: none
+		sourceColumn: Ano
+
+	column Visitantes
+		dataType: int64
+		formatString: #,0
+		lineageTag: 4f70c4fb-c690-5537-b17b-f3b2f37a5e32
+		summarizeBy: sum
+		sourceColumn: Visitantes
+
+	column Pais_Na_Base_de_Vendas
+		dataType: string
+		lineageTag: 2774c279-ba11-5197-9d8c-4a029acc32c7
+		summarizeBy: none
+		sourceColumn: Pais_Na_Base_de_Vendas
+
+	partition Fato_Visitantes_Internacionais = m
+		mode: import
+		source =
+			// Visitantes internacionais por país e ano: UNPIVOT da tabela larga raspada da web.
+			// Contexto externo para a pergunta central (quanto pesa o turista internacional nas vendas).
+			let
+			    Fonte = Web_Visitantes_Pais,
+			    // Remove o texto de notas de rodapé ("[30]") e deixa só os dígitos ("3 386 823" -> "3386823")
+			    SoDigitos = (valor as any) as text =>
+			        Text.Select(Text.Split(Text.From(valor), "["){0}, {"0".."9"}),
+			    SemNotas = Table.TransformColumns(Fonte, {{"País", each Text.Trim(Text.Split(Text.From(_), "["){0}), type text}}),
+			    SemTotais = Table.SelectRows(SemNotas, each not List.Contains({"Total", "Outros"}, [País])),
+
+			    // UNPIVOT: as colunas de ano viram linhas -> (País, Ano, Visitantes)
+			    Despivotado = Table.UnpivotOtherColumns(SemTotais, {"País"}, "Ano", "Visitantes"),
+
+			    ComAno = Table.TransformColumns(Despivotado, {
+			        {"Ano", each try Number.From(Text.Start(SoDigitos(_), 4)) otherwise null, Int64.Type},
+			        {"Visitantes", each try Number.From(SoDigitos(_)) otherwise null, Int64.Type}}),
+			    Validos = Table.SelectRows(ComAno, each [Ano] <> null and [Ano] >= 1990 and [Visitantes] <> null),
+
+			    // Mesmo De-Para de país da base de vendas (ex.: "Estados Unidos" -> "EUA"); sem De-Para mantém o nome
+			    MapaPais = Record.FromList(DePara_Pais[Padrao], DePara_Pais[Original]),
+			    PaisesVendas = List.Buffer(List.Distinct(Vendas_Base[Pais_Comprador])),
+			    ComPais = Table.AddColumn(Validos, "Pais", each
+			        Record.FieldOrDefault(MapaPais, Text.Lower([País]), [País]), type text),
+			    ComFlag = Table.AddColumn(ComPais, "Pais_Na_Base_de_Vendas", each
+			        if List.Contains(PaisesVendas, [Pais]) then "Sim" else "Não", type text),
+			    Renomeado = Table.RenameColumns(ComFlag, {{"País", "Pais_Original"}}),
+			    Final = Table.Sort(
+			        Table.SelectColumns(Renomeado, {"Pais", "Pais_Original", "Ano", "Visitantes", "Pais_Na_Base_de_Vendas"}),
+			        {{"Ano", Order.Ascending}, {"Visitantes", Order.Descending}})
+			in
+			    Final
+
+	annotation PBI_ResultType = Table

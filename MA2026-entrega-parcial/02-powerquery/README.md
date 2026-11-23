@@ -21,6 +21,8 @@ Automatiza a mesma limpeza da aba Tratamento, lendo direto os arquivos de `01-ex
 | Web_Visitantes_Pais | **Web scraping** (`Web.Page`): tabela "Visitantes que chegaram ao Brasil, por país de residência" da página [Turismo no Brasil](https://pt.wikipedia.org/wiki/Turismo_no_Brasil), em formato largo (uma coluna por ano) |
 | Fato_Visitantes_Internacionais | **Unpivot** (`Table.UnpivotOtherColumns`) das colunas de ano, limpeza de números ("3 386 823") e notas de rodapé, remoção de Total/Outros e padronização do país pelo `DePara_Pais` |
 
+As duas consultas novas também já estão dentro de `IngressoData_02_PowerQuery.xlsx` (Somente Conexão), e rodaram de verdade no Power BI Desktop (página Público Turista do dashboard).
+
 ### Fonte web e unpivot
 
 `Web_Visitantes_Pais` e `Fato_Visitantes_Internacionais` dão contexto externo à pergunta central: quantos turistas de cada país chegam ao Brasil por ano. A coluna `Pais_Na_Base_de_Vendas` marca os países que também aparecem entre os compradores (Argentina, Chile, EUA, Portugal).

@@ -7,7 +7,9 @@ let
         & "&start_date=" & Date.ToText(inicio, "yyyy-MM-dd")
         & "&end_date=" & Date.ToText(fim, "yyyy-MM-dd")
         & "&daily=temperature_2m_max,precipitation_sum&timezone=America%2FSao_Paulo",
-    Diario = Json.Document(Web.Contents(Url))[daily],
+    // A API devolve "deflate" no formato zlib, que o Power Query não decodifica ("Dados inválidos encontrados
+    // durante a decodificação"). Pedir gzip resolve.
+    Diario = Json.Document(Web.Contents(Url, [Headers = [#"Accept-Encoding" = "gzip"]]))[daily],
     Tabela = Table.FromColumns(
         {Diario[time], Diario[temperature_2m_max], Diario[precipitation_sum]},
         {"Data", "Temp_Max_C", "Chuva_mm"}),

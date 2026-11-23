@@ -1,0 +1,47 @@
+table Dim_Comprador
+	lineageTag: f591ad4f-7da3-5211-aa69-8ae6ebf55440
+
+	column Comprador_ID
+		dataType: string
+		lineageTag: 65cbdd77-5369-52f7-847b-dbc1553272a9
+		summarizeBy: none
+		sourceColumn: Comprador_ID
+
+	column Cidade_Comprador
+		dataType: string
+		lineageTag: bebd2165-0d14-5cf0-86f4-a47f11c4de2c
+		summarizeBy: none
+		sourceColumn: Cidade_Comprador
+
+	column UF_Comprador
+		dataType: string
+		lineageTag: 3c189573-be6a-5f36-a039-829a7f19bde3
+		summarizeBy: none
+		sourceColumn: UF_Comprador
+
+	column Pais_Comprador
+		dataType: string
+		lineageTag: ff8b6e62-ac09-5411-bf48-98b5ec83eb2f
+		summarizeBy: none
+		sourceColumn: Pais_Comprador
+
+	column Tipo_Comprador
+		dataType: string
+		lineageTag: 67637a30-1616-5e96-bed6-de8df08667c8
+		summarizeBy: none
+		sourceColumn: Tipo_Comprador
+
+	partition Dim_Comprador = m
+		mode: import
+		source =
+			// Dimensão de compradores (um registro por Comprador_ID)
+			let
+			    Colunas = Table.SelectColumns(Vendas_Base, {"Comprador_ID", "Cidade_Comprador", "UF_Comprador", "Pais_Comprador"}),
+			    Unicos = Table.Distinct(Colunas, {"Comprador_ID"}),
+			    ComTipo = Table.AddColumn(Unicos, "Tipo_Comprador", each
+			        if [Pais_Comprador] = "Brasil" then "Nacional" else "Estrangeiro", type text),
+			    Ordenada = Table.Sort(ComTipo, {{"Comprador_ID", Order.Ascending}})
+			in
+			    Ordenada
+
+	annotation PBI_ResultType = Table
