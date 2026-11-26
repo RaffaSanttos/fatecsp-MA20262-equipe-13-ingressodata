@@ -2,7 +2,9 @@
 
 | Arquivo | Conteúdo |
 |---|---|
-| `IngressoData_03_PowerPivot.xlsx` | Aba `Modelo_e_DAX` (relacionamentos, medidas e valores esperados) + Fato e 4 dimensões como Tabelas do Excel |
+| **`IngressoData_03_PowerPivot.xlsm`** | **Entrega:** Modelo de Dados pronto (5 tabelas, 4 relacionamentos, 14 medidas DAX, `Dim_Calendario` marcada como Tabela de Data) + aba `Conferencia` com Tabela Dinâmica do modelo. Montado no Excel em 25/11/2026 |
+| `IngressoData_03_PowerPivot.xlsx` | Ponto de partida sem modelo: aba `Modelo_e_DAX` (relacionamentos, medidas e valores esperados) + Fato e 4 dimensões como Tabelas do Excel |
+| `mdlMontarModelo.bas` | Macro que monta o modelo a partir do `.xlsx` |
 | `medidas.dax` | As 14 medidas prontas para colar no Power Pivot ou no Power BI |
 | `gabarito.json` | Números esperados para conferir o modelo |
 
@@ -13,7 +15,11 @@
 3. Único passo manual: Power Pivot > Gerenciar > `Dim_Calendario` > Design > **Marcar como Tabela de Data** (o Excel não expõe esse comando ao VBA).
 4. Confira na aba `Conferencia`: Faturamento Total R$ 2.037.612,50, Ticket Médio R$ 535,65, % Faturamento Turista 42,7%.
 
-O mesmo modelo (tabelas, relacionamentos e medidas) já está montado e conferido no Power BI: `MA2026-entrega-final/04-powerbi-dashboard/IngressoData_Dashboard.pbix`.
+**Conferência do `.xlsm` (Tabela Dinâmica do modelo):** Cinema R$ 29.177,50 · Festival R$ 1.460.022,50 · Show R$ 548.412,50 · Total R$ 2.037.612,50, 3.804 ingressos, ticket R$ 535,65, 42,7% turista. `Faturamento Mês Anterior` de mar/2025 = faturamento de fev/2025 (R$ 22.932,50), confirmando o DATEADD.
+
+Observação: no Excel em português o DAX usa `;` como separador de argumentos. A macro converte as vírgulas de `medidas.dax` automaticamente; ao colar à mão na área de cálculo, troque `,` por `;`.
+
+O mesmo modelo (tabelas, relacionamentos e medidas) também está montado e conferido no Power BI: `MA2026-entrega-final/04-powerbi-dashboard/IngressoData_Dashboard.pbix`.
 
 ## Montagem manual (Excel para Windows; o Excel para Mac não tem Power Pivot)
 

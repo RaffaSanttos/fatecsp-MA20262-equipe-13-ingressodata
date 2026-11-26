@@ -67,7 +67,12 @@ Private Sub Relacionar(modelo As Model, colunaFato As String, dimensao As String
         modelo.ModelTables(dimensao).ModelTableColumns(chave)
 End Sub
 
+' O Power Pivot lê a fórmula no idioma do Excel: no Excel em português o separador de argumentos
+' do DAX é ";" (a vírgula é decimal). As fórmulas abaixo usam vírgula e são convertidas aqui.
 Private Sub Medida(modelo As Model, nome As String, formula As String, formato As Variant)
+    Dim separador As String
+    separador = Application.International(xlListSeparator)
+    If separador <> "," Then formula = Replace(formula, ",", separador)
     modelo.ModelMeasures.Add nome, modelo.ModelTables(FATO), formula, formato
 End Sub
 

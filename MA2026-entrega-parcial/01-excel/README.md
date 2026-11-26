@@ -1,6 +1,7 @@
 # 01-excel · Etapa 1: Excel Avançado
 
-**Arquivo principal:** `IngressoData_01_Excel.xlsx`
+**Arquivo principal:** `IngressoData_01_Excel.xlsx` (salvo e recalculado no Excel em 25/11/2026: Auditoria **APROVADO**, 0 erros de fórmula).
+**Com macros:** `IngressoData_01_Excel.xlsm`, a mesma planilha com os módulos VBA e botões na aba Leia_me (ver `MA2026-entrega-final/01-vba`).
 
 | Aba | O que faz |
 |---|---|
