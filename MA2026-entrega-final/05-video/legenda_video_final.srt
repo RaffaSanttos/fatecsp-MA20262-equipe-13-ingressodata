@@ -1,0 +1,99 @@
+1
+00:00:00,000 --> 00:00:14,000
+Olá! Este é o IngressoData Brasil, o projeto da equipe 13 de Microinformática Aplicada. Nesta entrega final mostramos a planilha, as macros, o banco de dados, as APIs e o painel no Power BI.
+
+2
+00:00:14,000 --> 00:00:40,000
+Começando pelo Excel: a aba Resumo_KPIs reúne faturamento, ticket médio e participação dos turistas, com barras de dados e escala de cores feitas por formatação condicional.
+
+3
+00:00:40,000 --> 00:01:04,000
+Mais abaixo, a consulta de evento usa ÍNDICE com CORRESP duplo. Escolhemos o evento na lista suspensa e a planilha busca categoria, cidade, local e data no cadastro, além do faturamento e do percentual de turistas daquele evento.
+
+4
+00:01:04,000 --> 00:01:40,000
+Na aba Tratamento, cada coluna é uma fórmula de limpeza. A formatação condicional destaca em vermelho as linhas descartadas, como duplicadas e vendas sem quantidade, e em amarelo qualquer valor que ficou sem padronização.
+
+5
+00:01:40,000 --> 00:01:49,000
+A Auditoria confere que nenhuma linha some: duas mil e noventa e uma linhas brutas viram duas mil vendas válidas, com status aprovado.
+
+6
+00:01:49,000 --> 00:02:16,000
+As tabelas de padronização têm validação de dados: listas suspensas, valores sem espaços sobrando e sem duplicidade. Assim ninguém digita uma categoria errada.
+
+7
+00:02:16,000 --> 00:02:46,000
+Agora a automação em VBA. Os botões da aba Leia_me chamam as macros. O relatório semanal percorre a base com laços e condicionais e cria uma aba nova com pedidos, ingressos, faturamento e percentual de turistas por evento e praça.
+
+8
+00:02:46,000 --> 00:03:19,000
+No editor do VBA ficam os módulos. Aqui estão as variáveis, os laços For e as condições If que montam o relatório, e as rotinas de relatório diário, semanal e por período.
+
+9
+00:03:19,000 --> 00:03:35,000
+Esta outra macro foi gravada com o Gravador de Macros: repare no código gerado automaticamente, com Application.Goto e AutoAjuste das colunas.
+
+10
+00:03:35,000 --> 00:03:52,000
+No Power Pivot montamos o modelo de dados com cinco tabelas, quatro relacionamentos e catorze medidas em DAX. A tabela dinâmica do modelo bate com o gabarito: dois milhões e trinta e sete mil reais de faturamento.
+
+11
+00:03:52,000 --> 00:04:01,000
+Passando para o banco de dados: o script cria as tabelas com chaves primárias e estrangeiras e carrega as duas mil vendas, sem nenhuma violação de chave.
+
+12
+00:04:01,000 --> 00:04:09,000
+A primeira consulta usa SELECT, GROUP BY e ORDER BY para calcular os indicadores por categoria.
+
+13
+00:04:09,000 --> 00:04:17,000
+A segunda junta a fato com a dimensão de eventos usando JOIN e filtra com WHERE só os eventos ao ar livre.
+
+14
+00:04:17,000 --> 00:04:22,000
+A view de KPIs gerais confirma os mesmos números do Excel.
+
+15
+00:04:22,000 --> 00:04:58,000
+Para enriquecer os dados, consumimos duas APIs REST gratuitas: a do Banco Central, com a cotação do dólar de cada dia, e a Open-Meteo, com temperatura e chuva das três praças. Foram seiscentos e oitenta e três dias de câmbio e mais de duas mil linhas de clima.
+
+16
+00:04:58,000 --> 00:05:14,000
+Tudo isso termina no dashboard do Power BI. A Visão Geral mostra os principais números: dois milhões de reais em ingressos, ticket médio de quinhentos e trinta e cinco reais e quarenta e dois vírgula sete por cento do faturamento vindo de turistas.
+
+17
+00:05:14,000 --> 00:05:30,000
+Os visuais são interativos: ao clicar em Festival, todo o painel filtra. Os festivais concentram a maior parte da receita e do público turista.
+
+18
+00:05:30,000 --> 00:05:42,000
+A página Público Turista detalha cada evento, compara compradores nacionais e estrangeiros e traz os visitantes internacionais que chegam ao Brasil por país.
+
+19
+00:05:42,000 --> 00:06:02,000
+Em Fatores Externos cruzamos as vendas com o dólar no dia da compra e com o clima no dia do evento, que vieram das APIs.
+
+20
+00:06:02,000 --> 00:06:32,000
+Na exibição de modelo aparece o esquema estrela: a fato de vendas no centro, ligada às dimensões de evento, praça, comprador e calendário.
+
+21
+00:06:32,000 --> 00:06:59,000
+No Power Query estão todas as consultas: leitura dos arquivos, limpeza, padronização e as fontes da web.
+
+22
+00:06:59,000 --> 00:07:25,000
+Esta consulta faz web scraping de uma tabela da Wikipédia com os visitantes internacionais por país. Ela vem em formato largo, com uma coluna para cada ano.
+
+23
+00:07:25,000 --> 00:07:44,000
+A consulta seguinte aplica o unpivot: as colunas de ano viram linhas, com país, ano e número de visitantes.
+
+24
+00:07:44,000 --> 00:08:24,000
+Depois disso ela limpa os números, padroniza o nome dos países com a mesma tabela de-para das vendas e marca quais países também aparecem entre os nossos compradores.
+
+25
+00:08:24,000 --> 00:08:51,000
+Concluindo: partimos de três planilhas bagunçadas e chegamos a um painel que responde à pergunta central. Quarenta e dois vírgula sete por cento do faturamento vem de turistas, e nos festivais esse número chega a quarenta e cinco por cento. Obrigado!
