@@ -1,0 +1,78 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.4.0/schema.json",
+  "name": "g_tipo_comprador",
+  "position": {
+    "x": 20,
+    "y": 660,
+    "z": 0,
+    "height": 400,
+    "width": 620,
+    "tabOrder": 0
+  },
+  "visual": {
+    "visualType": "donutChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Dim_Comprador"
+                    }
+                  },
+                  "Property": "Tipo_Comprador"
+                }
+              },
+              "queryRef": "Dim_Comprador.Tipo_Comprador",
+              "nativeQueryRef": "Tipo_Comprador"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Fato_Vendas_Ingressos"
+                    }
+                  },
+                  "Property": "Compradores"
+                }
+              },
+              "queryRef": "Fato_Vendas_Ingressos.Compradores",
+              "nativeQueryRef": "Compradores"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Compradores nacionais x estrangeiros'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "IngressoData_Dashboard"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "c2e4fd15-6133-5a9d-abbe-7e2a19661a1b"
+  }
+}

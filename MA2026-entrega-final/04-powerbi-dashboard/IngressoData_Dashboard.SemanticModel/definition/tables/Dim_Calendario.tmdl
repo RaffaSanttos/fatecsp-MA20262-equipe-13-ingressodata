@@ -1,0 +1,78 @@
+table Dim_Calendario
+	dataCategory: Time
+	lineageTag: fa7c6e3c-8009-538d-94d9-4f3cfcee6e64
+
+	column Data
+		dataType: dateTime
+		formatString: dd/mm/yyyy
+		isKey
+		lineageTag: 3c619994-8890-5a4d-a097-95920ca5fb93
+		summarizeBy: none
+		sourceColumn: Data
+
+	column Ano
+		dataType: int64
+		formatString: 0
+		lineageTag: b104ba27-3dcb-5b3b-aee4-10d4a9bcf447
+		summarizeBy: none
+		sourceColumn: Ano
+
+	column Mes
+		dataType: int64
+		formatString: 0
+		lineageTag: 6316c872-9329-55c1-ab6b-590822230d49
+		summarizeBy: none
+		sourceColumn: Mes
+
+	column Nome_Mes
+		dataType: string
+		lineageTag: 93115912-25f8-5b00-8720-34fd3f99ed4a
+		summarizeBy: none
+		sourceColumn: Nome_Mes
+
+	column Ano_Mes
+		dataType: string
+		lineageTag: e9ac79bb-09dc-53d1-be44-262e096533ef
+		summarizeBy: none
+		sourceColumn: Ano_Mes
+
+	column Trimestre
+		dataType: string
+		lineageTag: 0e474b00-e0c7-5b45-9208-568f9fce8a3e
+		summarizeBy: none
+		sourceColumn: Trimestre
+
+	column Dia_Semana
+		dataType: string
+		lineageTag: 10bb6a09-0369-55d5-a4a4-df4983c6a760
+		summarizeBy: none
+		sourceColumn: Dia_Semana
+
+	column Fim_de_Semana
+		dataType: string
+		lineageTag: 486c9354-0251-524c-ad4f-0f0b85344c88
+		summarizeBy: none
+		sourceColumn: Fim_de_Semana
+
+	partition Dim_Calendario = m
+		mode: import
+		source =
+			// Dimensão calendário: 1 linha por dia, do 1º dia do ano da primeira venda ao último dia do ano do último evento
+			let
+			    Inicio = #date(Date.Year(List.Min(Vendas_Base[Data_Venda])), 1, 1),
+			    Fim = #date(Date.Year(List.Max(Vendas_Base[Data_Evento])), 12, 31),
+			    Datas = List.Dates(Inicio, Duration.Days(Fim - Inicio) + 1, #duration(1, 0, 0, 0)),
+			    NomesMes = {"jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"},
+			    NomesDia = {"segunda", "terça", "quarta", "quinta", "sexta", "sábado", "domingo"},
+			    Tabela = Table.FromList(Datas, Splitter.SplitByNothing(), type table [Data = date]),
+			    Ano = Table.AddColumn(Tabela, "Ano", each Date.Year([Data]), Int64.Type),
+			    Mes = Table.AddColumn(Ano, "Mes", each Date.Month([Data]), Int64.Type),
+			    NomeMes = Table.AddColumn(Mes, "Nome_Mes", each NomesMes{[Mes] - 1}, type text),
+			    AnoMes = Table.AddColumn(NomeMes, "Ano_Mes", each Text.From([Ano]) & "-" & Text.PadStart(Text.From([Mes]), 2, "0"), type text),
+			    Trimestre = Table.AddColumn(AnoMes, "Trimestre", each "T" & Text.From(Date.QuarterOfYear([Data])), type text),
+			    DiaSemana = Table.AddColumn(Trimestre, "Dia_Semana", each NomesDia{Date.DayOfWeek([Data], Day.Monday)}, type text),
+			    FimDeSemana = Table.AddColumn(DiaSemana, "Fim_de_Semana", each if Date.DayOfWeek([Data], Day.Monday) >= 5 then "Sim" else "Não", type text)
+			in
+			    FimDeSemana
+
+	annotation PBI_ResultType = Table

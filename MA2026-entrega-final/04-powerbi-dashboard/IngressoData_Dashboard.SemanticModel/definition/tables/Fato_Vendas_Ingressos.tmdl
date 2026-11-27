@@ -1,0 +1,228 @@
+table Fato_Vendas_Ingressos
+	lineageTag: 63f0e0fa-27cb-5121-81ab-246ca443c64e
+
+	measure 'Faturamento Total' = SUM ( Fato_Vendas_Ingressos[Valor_Total] )
+		formatString: \R$ #,0.00
+		lineageTag: 6a66211d-6097-5b9c-862b-29ce815e42e7
+
+	measure 'Ingressos Vendidos' = SUM ( Fato_Vendas_Ingressos[Qtd] )
+		formatString: #,0
+		lineageTag: e5e52272-5248-5d42-bc6f-8dbcc0b3eb00
+
+	measure Pedidos = DISTINCTCOUNT ( Fato_Vendas_Ingressos[ID_Venda] )
+		formatString: #,0
+		lineageTag: 75c0f8d1-5558-596e-8e01-62baf40a114a
+
+	measure 'Ticket Médio' = DIVIDE ( [Faturamento Total], [Ingressos Vendidos] )
+		formatString: \R$ #,0.00
+		lineageTag: db7bf4dd-5287-5148-9019-5ebf2aa7453d
+
+	measure 'Ticket Médio por Pedido' = DIVIDE ( [Faturamento Total], [Pedidos] )
+		formatString: \R$ #,0.00
+		lineageTag: 6ea2f724-0a69-587f-acbe-7f04f9776e43
+
+	measure 'Faturamento Turista' = CALCULATE ( [Faturamento Total], Fato_Vendas_Ingressos[Origem_Publico] <> "Local" )
+		formatString: \R$ #,0.00
+		lineageTag: 03cc9e7c-9b24-50d3-ad07-7bcdc787097d
+
+	measure '% Faturamento Turista' = DIVIDE ( [Faturamento Turista], [Faturamento Total] )
+		formatString: 0.0%
+		lineageTag: 1b9bfae2-afcb-5cbc-baa4-1f993b249f32
+
+	measure Compradores = DISTINCTCOUNT ( Fato_Vendas_Ingressos[Comprador_ID] )
+		formatString: #,0
+		lineageTag: 453aa4ba-5ac2-5938-85d2-725c921096b5
+
+	measure 'Compradores Turistas' = CALCULATE ( [Compradores], Fato_Vendas_Ingressos[Origem_Publico] <> "Local" )
+		formatString: #,0
+		lineageTag: 5a034cf5-0e5f-5038-8e48-0334fcdd3d4c
+
+	measure '% Compradores Turistas' = DIVIDE ( [Compradores Turistas], [Compradores] )
+		formatString: 0.0%
+		lineageTag: 7d12ae97-c1c0-5fb9-9118-7e9f6e53e860
+
+	measure 'Participação Categoria' = DIVIDE ( [Faturamento Total], CALCULATE ( [Faturamento Total], ALL ( Fato_Vendas_Ingressos[Categoria] ), ALL ( Dim_Evento[Categoria] ) ) )
+		formatString: 0.0%
+		lineageTag: 4ecc891a-b628-5ba4-96b3-38676cf60919
+
+	measure 'Faturamento Ao Ar Livre' = CALCULATE ( [Faturamento Total], Dim_Evento[Ao_Ar_Livre] = "Sim" )
+		formatString: \R$ #,0.00
+		lineageTag: f45a176e-56bf-5be6-82b9-974312e7f714
+
+	measure 'Faturamento Mês Anterior' = CALCULATE ( [Faturamento Total], DATEADD ( Dim_Calendario[Data], -1, MONTH ) )
+		formatString: \R$ #,0.00
+		lineageTag: c2078eca-ad29-59b7-8300-367a4efb2fb5
+
+	measure 'Variação Mensal %' = DIVIDE ( [Faturamento Total] - [Faturamento Mês Anterior], [Faturamento Mês Anterior] )
+		formatString: 0.0%
+		lineageTag: b018535e-b299-5f25-b55f-d852bc5b0a32
+
+	measure 'Dólar Médio' = AVERAGE ( Fato_Vendas_Ingressos[Dolar_no_Dia_da_Venda] )
+		formatString: 0.00
+		lineageTag: 2d7020b0-06ef-590a-926b-dd3f371e11f5
+
+	measure 'Ingressos Turista Internacional' = CALCULATE ( [Ingressos Vendidos], Fato_Vendas_Ingressos[Origem_Publico] = "Turista Internacional" )
+		formatString: #,0
+		lineageTag: bee80998-0320-5c0b-9b17-a6eced76ae7f
+
+	measure 'Visitantes Internacionais' = SUM ( Fato_Visitantes_Internacionais[Visitantes] )
+		formatString: #,0
+		lineageTag: 3ac9d8ff-b665-5a82-9f7b-d4dd310ee95f
+
+	column ID_Venda
+		dataType: string
+		lineageTag: d7edb438-32be-55b9-8ca5-6b448e8e54c5
+		summarizeBy: none
+		sourceColumn: ID_Venda
+
+	column Data_Venda
+		dataType: dateTime
+		formatString: dd/mm/yyyy
+		lineageTag: fc4995de-cd55-5d03-b4f1-8d46a9de9929
+		summarizeBy: none
+		sourceColumn: Data_Venda
+
+	column Data_Evento
+		dataType: dateTime
+		formatString: dd/mm/yyyy
+		lineageTag: a6092de0-f91d-56a5-9cdc-f16fbfaf1c02
+		summarizeBy: none
+		sourceColumn: Data_Evento
+
+	column Evento
+		dataType: string
+		lineageTag: 1de3cc0d-1a14-5c60-8958-47aa9e246c4e
+		summarizeBy: none
+		sourceColumn: Evento
+
+	column Categoria
+		dataType: string
+		lineageTag: 63bb2d04-ef63-5d6c-a3ef-9e600d3fccf7
+		summarizeBy: none
+		sourceColumn: Categoria
+
+	column Cidade_Evento
+		dataType: string
+		lineageTag: 84eeb9f0-e731-583d-bea6-8f2d09d26215
+		summarizeBy: none
+		sourceColumn: Cidade_Evento
+
+	column Tipo_Ingresso
+		dataType: string
+		lineageTag: 1bb83c94-fad4-5b7a-a870-75ff77589f18
+		summarizeBy: none
+		sourceColumn: Tipo_Ingresso
+
+	column Qtd
+		dataType: int64
+		formatString: #,0
+		lineageTag: fde579a2-7bdb-576e-a727-8bb80856c934
+		summarizeBy: sum
+		sourceColumn: Qtd
+
+	column Valor_Unitario
+		dataType: decimal
+		formatString: \R$ #,0.00
+		lineageTag: 9806d0cc-1fe8-5bbf-9906-bb542048b9cc
+		summarizeBy: sum
+		sourceColumn: Valor_Unitario
+
+	column Valor_Total
+		dataType: decimal
+		formatString: \R$ #,0.00
+		lineageTag: 94bbd59e-14fc-5a40-ad73-49ee0eb5ea53
+		summarizeBy: sum
+		sourceColumn: Valor_Total
+
+	column Canal
+		dataType: string
+		lineageTag: 31ff8a40-7070-5b37-9e40-6aab334acc35
+		summarizeBy: none
+		sourceColumn: Canal
+
+	column Comprador_ID
+		dataType: string
+		lineageTag: f958a908-e368-5aac-8677-8e8b4bc60c4f
+		summarizeBy: none
+		sourceColumn: Comprador_ID
+
+	column Cidade_Comprador
+		dataType: string
+		lineageTag: cc0a50fb-d130-582e-a02a-c7cb355e473a
+		summarizeBy: none
+		sourceColumn: Cidade_Comprador
+
+	column UF_Comprador
+		dataType: string
+		lineageTag: 8b40284f-c657-5cdd-9a4a-489c30bbb0bf
+		summarizeBy: none
+		sourceColumn: UF_Comprador
+
+	column Pais_Comprador
+		dataType: string
+		lineageTag: c4a89b8e-42f9-5317-931c-f547709ec795
+		summarizeBy: none
+		sourceColumn: Pais_Comprador
+
+	column Origem_Publico
+		dataType: string
+		lineageTag: e56e9a39-cf4e-51d9-8ee0-2ee47615d522
+		summarizeBy: none
+		sourceColumn: Origem_Publico
+
+	column Arquivo_Origem
+		dataType: string
+		lineageTag: cc536a25-5a41-5141-b573-d200c8565c48
+		summarizeBy: none
+		sourceColumn: Arquivo_Origem
+
+	column Dolar_no_Dia_da_Venda
+		dataType: double
+		formatString: 0.0000
+		lineageTag: ed177eb3-9068-57d8-8dd4-a3ae782fa9da
+		summarizeBy: none
+		sourceColumn: Dolar_no_Dia_da_Venda
+
+	column Chave_Cidade_Data
+		dataType: string
+		lineageTag: 12651a68-6d6a-5021-867a-9bf78c28f6fe
+		summarizeBy: none
+		sourceColumn: Chave_Cidade_Data
+
+	column Temp_Max_no_Evento
+		dataType: double
+		formatString: 0.0
+		lineageTag: 4dcf8065-8621-52f9-8f9c-66749349386c
+		summarizeBy: none
+		sourceColumn: Temp_Max_no_Evento
+
+	column Chuva_mm_no_Evento
+		dataType: double
+		formatString: 0.0
+		lineageTag: 24931c35-63f1-5112-8498-a9f1b2602d02
+		summarizeBy: none
+		sourceColumn: Chuva_mm_no_Evento
+
+	column Condicao_no_Evento
+		dataType: string
+		lineageTag: 40395969-6a3c-5f47-95bc-a41706ba53c2
+		summarizeBy: none
+		sourceColumn: Condicao_no_Evento
+
+	partition Fato_Vendas_Ingressos = m
+		mode: import
+		source =
+			// Fato de vendas + câmbio do dia da venda + clima do dia do evento (enriquecimento via API)
+			let
+			    Fonte = Vendas_Base,
+			    ComCambio = Table.NestedJoin(Fonte, {"Data_Venda"}, Dim_Cambio_BCB, {"Data"}, "Cambio", JoinKind.LeftOuter),
+			    CambioExpandido = Table.ExpandTableColumn(ComCambio, "Cambio", {"Dolar_Venda"}, {"Dolar_no_Dia_da_Venda"}),
+			    ComChave = Table.AddColumn(CambioExpandido, "Chave_Cidade_Data", each [Cidade_Evento] & "|" & Date.ToText([Data_Evento], "yyyy-MM-dd"), type text),
+			    ComClima = Table.NestedJoin(ComChave, {"Chave_Cidade_Data"}, Fato_Clima, {"Chave_Cidade_Data"}, "Clima", JoinKind.LeftOuter),
+			    ClimaExpandido = Table.ExpandTableColumn(ComClima, "Clima", {"Temp_Max_C", "Chuva_mm", "Condicao"},
+			        {"Temp_Max_no_Evento", "Chuva_mm_no_Evento", "Condicao_no_Evento"}),
+			    Tipos = Table.TransformColumnTypes(ClimaExpandido, {{"Dolar_no_Dia_da_Venda", type number}, {"Temp_Max_no_Evento", type number}, {"Chuva_mm_no_Evento", type number}})
+			in
+			    Tipos
+
+	annotation PBI_ResultType = Table

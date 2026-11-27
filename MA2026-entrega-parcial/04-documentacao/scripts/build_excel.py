@@ -6,8 +6,11 @@ from pathlib import Path
 import openpyxl
 from openpyxl.chart import BarChart, PieChart, Reference
 from openpyxl.comments import Comment
+from openpyxl.formatting.rule import ColorScaleRule, DataBarRule, Rule
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
+from openpyxl.styles.differential import DifferentialStyle
 from openpyxl.utils import get_column_letter
+from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.worksheet.table import Table, TableStyleInfo
 
 FONTE = "Arial"
@@ -267,6 +270,118 @@ def aba_resumo(wb, ultima):
     pizza.set_categories(Reference(ws, min_col=1, min_row=4, max_row=6))
     pizza.height, pizza.width = 8, 12
     ws.add_chart(pizza, "I21")
+    consulta_evento(ws, ultima)
+
+
+def consulta_evento(ws, ultima, reservadas=200):
+    """Consulta com ÍNDICE + CORRESP duplo: a linha vem do evento escolhido e a coluna vem do nome do campo
+    (os rótulos da coluna A são iguais aos cabeçalhos do Cadastro_Eventos). O valor padrão "-" evita que o
+    converter_procx.py transforme estas fórmulas em PROCX."""
+    t = "Tratamento"
+    cadastro = f"Cadastro_Eventos!$A$2:$F${reservadas}"
+    linha_evento = f"MATCH($B$30,Cadastro_Eventos!$A$2:$A${reservadas},0)"
+
+    def campo(ref):
+        return f"INDEX({cadastro},{linha_evento},MATCH({ref},Cadastro_Eventos!$A$1:$F$1,0))"
+
+    ws["A28"] = "Consulta de evento (ÍNDICE + CORRESP)"
+    ws["A28"].font = Font(name=FONTE, bold=True, size=12, color=AZUL_ESCURO)
+    ws["A29"], ws["B29"] = "Campo", "Valor"
+    estilizar_cabecalho(ws, 29)
+    ws["A30"], ws["B30"] = "Evento (escolha na lista)", "Festival Sonora SP 2025"
+    ws["B30"].fill = ENTRADA
+    for linha, nome in enumerate(["Categoria", "Cidade_Evento", "Local", "Ao_Ar_Livre"], start=31):
+        ws[f"A{linha}"], ws[f"B{linha}"] = nome, f'=IFERROR({campo(f"$A{linha}")},"-")'
+    ws["A35"] = "Data_Evento"
+    ws["B35"] = f'=IFERROR(IF({campo("$A35")}="","Sessões diárias",{campo("$A35")}),"-")'
+    ws["B35"].number_format = "dd/mm/yyyy"
+    filtro = f'{t}!$D$2:$D${ultima},$B$30,{t}!$S$2:$S${ultima},"OK"'
+    ws["A36"], ws["B36"] = "Faturamento (Status OK)", f"=SUMIFS({t}!$J$2:$J${ultima},{filtro})"
+    ws["A37"], ws["B37"] = "Ingressos vendidos", f"=SUMIFS({t}!$H$2:$H${ultima},{filtro})"
+    ws["A38"] = "% Faturamento Turista"
+    ws["B38"] = f'=IF(B36=0,0,SUMIFS({t}!$J$2:$J${ultima},{filtro},{t}!$P$2:$P${ultima},"<>Local")/B36)'
+    ws["B36"].number_format, ws["B37"].number_format, ws["B38"].number_format = MOEDA, "#,##0", PERCENTUAL
+    lista = DataValidation(type="list", formula1=f"Cadastro_Eventos!$A$2:$A${reservadas}", allow_blank=True,
+                           showErrorMessage=True, errorTitle="Evento", error="Escolha um evento do Cadastro_Eventos.",
+                           showInputMessage=True, promptTitle="Evento", prompt="Escolha o evento para consultar.")
+    ws.add_data_validation(lista)
+    lista.add("B30")
+
+
+def validacao(tipo, intervalo, formula1, titulo, erro, prompt=None, estilo="stop", **extras):
+    regra = DataValidation(type=tipo, formula1=formula1, allow_blank=True, showErrorMessage=True,
+                           errorStyle=estilo, errorTitle=titulo, error=erro, **extras)
+    if prompt:
+        regra.showInputMessage, regra.promptTitle, regra.prompt = True, titulo, prompt
+    regra.add(intervalo)
+    return regra
+
+
+def controles_de_qualidade(wb, ultima, reservadas=200):
+    """Validação de dados nas tabelas editáveis e formatação condicional nas abas de conferência."""
+    n = reservadas
+    original = ("custom", f"A2:A{n}", f"AND(EXACT(A2,LOWER(TRIM(A2))),COUNTIF($A$2:$A${n},A2)=1)",
+                "Valor original inválido",
+                "Digite em minúsculas, sem espaços sobrando e sem repetir um valor já cadastrado.",
+                "Grafia original em minúsculas (o PROCX busca com MINÚSCULA(ARRUMAR(...))).")
+    regras = {
+        "DePara_Categoria": [validacao(*original),
+                             validacao("list", f"B2:B{n}", '"Show,Festival,Cinema"', "Categoria padrão",
+                                       "Escolha uma das categorias da lista.", "Categoria padronizada.")],
+        "DePara_Cidade": [validacao(*original),
+                          validacao("custom", f"B2:B{n}", "AND(LEN(B2)>0,EXACT(B2,TRIM(B2)))", "Cidade padrão",
+                                    "Nome da cidade sem espaços no início ou no fim.",
+                                    "Nome oficial da cidade, com acento.")],
+        "DePara_Pais": [validacao(*original),
+                        validacao("list", f"B2:B{n}", '"Brasil,Argentina,Chile,EUA,Portugal"', "País padrão",
+                                  "País fora da lista. Confirme só se for um país novo na base.",
+                                  "País padronizado.", estilo="warning")],
+        "Cadastro_Eventos": [
+            validacao("custom", f"A2:A{n}", f"AND(LEN(A2)>0,EXACT(A2,TRIM(A2)),COUNTIF($A$2:$A${n},A2)=1)",
+                      "Evento", "Nome do evento sem espaços sobrando e sem repetir um evento já cadastrado.",
+                      "Nome único do evento."),
+            validacao("list", f"B2:B{n}", '"Show,Festival,Cinema"', "Categoria", "Escolha uma das categorias da lista."),
+            validacao("list", f"C2:C{n}", '"São Paulo,Rio de Janeiro,Belo Horizonte"', "Praça",
+                      "Cidade fora das praças atuais. Confirme só se for uma praça nova.", estilo="warning"),
+            validacao("list", f"E2:E{n}", '"Sim,Não"', "Ao ar livre", "Responda Sim ou Não."),
+            validacao("date", f"F2:F{n}", "DATE(2024,1,1)", "Data do evento",
+                      "Data entre 01/01/2024 e 31/12/2030 (deixe vazio para cinema).",
+                      operator="between", formula2="DATE(2030,12,31)")],
+    }
+    for aba, lista in regras.items():
+        for regra in lista:
+            wb[aba].add_data_validation(regra)
+
+    vermelho = DifferentialStyle(font=Font(color="9C0006"), fill=PatternFill(bgColor="FFC7CE"))
+    verde = DifferentialStyle(font=Font(color="006100"), fill=PatternFill(bgColor="C6EFCE"))
+    amarelo = DifferentialStyle(font=Font(color="9C5700"), fill=PatternFill(bgColor="FFEB9C"))
+
+    def igual(valor, estilo, operador="equal"):
+        return Rule(type="cellIs", operator=operador, formula=[valor], dxf=estilo)
+
+    ws = wb["Tratamento"]
+    descarte = Rule(type="beginsWith", operator="beginsWith", text="Descartar", dxf=vermelho,
+                    formula=['LEFT(S2,9)="Descartar"'])
+    ws.conditional_formatting.add(f"S2:S{ultima}", descarte)
+    ws.conditional_formatting.add(f"E2:O{ultima}", igual('"REVISAR"', amarelo))
+    ws.conditional_formatting.add(f"R2:R{ultima}", igual('"Sim"', vermelho))
+
+    ws = wb["Auditoria"]
+    ws.conditional_formatting.add("B7", igual('"OK"', verde))
+    ws.conditional_formatting.add("B7", igual('"DIVERGENTE"', vermelho))
+    ws.conditional_formatting.add("B8:B9", igual("0", vermelho, "greaterThan"))
+    ws.conditional_formatting.add("B8:B9", igual("0", verde))
+    ws.conditional_formatting.add("B10", igual('"APROVADO"', verde))
+    ws.conditional_formatting.add("B10", igual('"REVISAR"', vermelho))
+
+    ws = wb["Resumo_KPIs"]
+    ws.conditional_formatting.add("F4:F6", DataBarRule(start_type="num", start_value=0, end_type="num",
+                                                       end_value=1, color="F28C28"))
+    ws.conditional_formatting.add("G4:G6", DataBarRule(start_type="num", start_value=0, end_type="num",
+                                                       end_value=1, color="5B9BD5"))
+    ws.conditional_formatting.add("B12:D14", ColorScaleRule(start_type="min", start_color="FFFFFF",
+                                                            end_type="max", end_color="5B9BD5"))
+    ws.conditional_formatting.add("F12:F15", igual("0.4", verde, "greaterThanOrEqual"))
 
 
 def aba_leia_me(wb):
@@ -295,6 +410,14 @@ def aba_leia_me(wb):
          "Turista Internacional = mora fora do Brasil.", False),
         ("", False),
         ("Dados 100% simulados (gerador com seed fixa em 04-documentacao/scripts). Eventos e nomes são fictícios.", False),
+        ("", False),
+        ("Controles de qualidade e consulta", True),
+        ("• Validação de dados nas abas DePara_* e Cadastro_Eventos: listas suspensas, datas válidas, "
+         "valores sem espaços sobrando e sem duplicidade.", False),
+        ("• Formatação condicional: descartes em vermelho e REVISAR em amarelo (Tratamento), "
+         "semáforo na Auditoria, barras de dados e escala de cor no Resumo_KPIs.", False),
+        ("• Resumo_KPIs, linha 28: consulta de evento com ÍNDICE + CORRESP duplo "
+         "(linha pelo evento escolhido, coluna pelo nome do campo).", False),
     ]
     for texto, negrito in textos:
         ws.append([texto])
@@ -312,6 +435,7 @@ def main(pasta_brutos, destino):
     ultima = aba_tratamento(wb, ultima_bruta, tamanhos)
     aba_auditoria(wb, ultima)
     aba_resumo(wb, ultima)
+    controles_de_qualidade(wb, ultima)
     for ws in wb.worksheets:
         fonte_padrao(ws)
     wb.calculation.fullCalcOnLoad = True

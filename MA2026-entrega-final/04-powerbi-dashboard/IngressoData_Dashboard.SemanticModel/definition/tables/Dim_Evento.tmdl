@@ -1,0 +1,53 @@
+table Dim_Evento
+	lineageTag: c2618235-e709-5e80-89b6-35be7ea05745
+
+	column Evento
+		dataType: string
+		lineageTag: d10fc026-1aeb-57c9-9e22-3120c7664490
+		summarizeBy: none
+		sourceColumn: Evento
+
+	column Categoria
+		dataType: string
+		lineageTag: db727e6a-5ba3-5e19-91f5-dfc535a74c5a
+		summarizeBy: none
+		sourceColumn: Categoria
+
+	column Cidade_Evento
+		dataType: string
+		lineageTag: b10ea016-1d4a-5408-b8a8-b78c13590587
+		summarizeBy: none
+		sourceColumn: Cidade_Evento
+
+	column Local
+		dataType: string
+		lineageTag: a0cea732-deca-517b-82e0-45fdfcde608f
+		summarizeBy: none
+		sourceColumn: Local
+
+	column Ao_Ar_Livre
+		dataType: string
+		lineageTag: 3ced9023-b155-5100-a176-2d32664af6a9
+		summarizeBy: none
+		sourceColumn: Ao_Ar_Livre
+
+	column Data_Evento
+		dataType: dateTime
+		formatString: dd/mm/yyyy
+		lineageTag: 8daef123-32c9-50ff-92cc-dd2bb87f87aa
+		summarizeBy: none
+		sourceColumn: Data_Evento
+
+	partition Dim_Evento = m
+		mode: import
+		source =
+			// Dimensão de eventos (cadastro em tabelas_apoio.xlsx). Data_Evento vazia = cinema com sessões diárias
+			let
+			    Fonte = fnLerAba("tabelas_apoio.xlsx", "Cadastro_Eventos"),
+			    Tipos = Table.TransformColumnTypes(Fonte, {
+			        {"Evento", type text}, {"Categoria", type text}, {"Cidade_Evento", type text},
+			        {"Local", type text}, {"Ao_Ar_Livre", type text}, {"Data_Evento", type date}})
+			in
+			    Tipos
+
+	annotation PBI_ResultType = Table

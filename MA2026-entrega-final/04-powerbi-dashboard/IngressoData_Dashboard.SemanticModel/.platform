@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "IngressoData_Dashboard"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "5053aef0-f82f-51e5-a4e5-17d8cd283627"
+  }
+}

@@ -1,6 +1,7 @@
 # 01-excel · Etapa 1: Excel Avançado
 
-**Arquivo principal:** `IngressoData_01_Excel.xlsx`
+**Arquivo principal:** `IngressoData_01_Excel.xlsx` (salvo e recalculado no Excel em 25/11/2026: Auditoria **APROVADO**, 0 erros de fórmula).
+**Com macros:** `IngressoData_01_Excel.xlsm`, a mesma planilha com os módulos VBA e botões na aba Leia_me (ver `MA2026-entrega-final/01-vba`).
 
 | Aba | O que faz |
 |---|---|
@@ -23,6 +24,19 @@
 | Origem do comprador não classificada | `Origem_Publico`: Local, Turista Nacional ou Turista Internacional |
 
 Resultado: **2.000 vendas válidas** (2.091 brutas = 12 vazias + 49 duplicadas + 30 inválidas + 2.000 OK).
+
+## Validação, formatação condicional e ÍNDICE/CORRESP
+
+| Recurso | Onde | Regra |
+|---|---|---|
+| Validação de dados (personalizada) | `DePara_*` coluna A | Original em minúsculas, sem espaços sobrando e sem repetir (`E(EXATO(A2;MINÚSCULA(ARRUMAR(A2)));CONT.SE(...)=1)`) |
+| Validação de dados (lista) | `DePara_Categoria` B, `Cadastro_Eventos` B | Show, Festival ou Cinema |
+| Validação de dados (lista com aviso) | `DePara_Pais` B, `Cadastro_Eventos` C | País/praça fora da lista só entra depois de confirmar |
+| Validação de dados (lista e data) | `Cadastro_Eventos` E e F | Sim/Não; data entre 01/01/2024 e 31/12/2030 |
+| Formatação condicional | `Tratamento` | Status "Descartar…" e Duplicado "Sim" em vermelho; "REVISAR" em amarelo |
+| Formatação condicional | `Auditoria` | Semáforo: verde quando OK/0/APROVADO, vermelho quando há problema |
+| Formatação condicional | `Resumo_KPIs` | Barras de dados em % turista e participação; escala de cor no faturamento por praça; % turista ≥ 40% em verde |
+| ÍNDICE + CORRESP duplo | `Resumo_KPIs`, linha 28 | Escolha um evento na lista (B30): a linha vem do `CORRESP` do evento e a coluna do `CORRESP` do nome do campo no cabeçalho do `Cadastro_Eventos`. Faturamento, ingressos e % turista do evento vêm de `SOMASES` |
 
 ## Dados brutos
 

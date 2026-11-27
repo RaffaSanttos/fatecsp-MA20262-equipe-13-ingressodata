@@ -25,15 +25,15 @@ Dado Bruto → Excel Avançado → Power Query → Power Pivot/DAX → VBA → S
 ```
 MA2026-projeto-pratico/
 ├── MA2026-entrega-parcial/
-│   ├── 01-excel/          planilha tratada por fórmulas (PROCX, VALORNUMERO) + dados brutos
-│   ├── 02-powerquery/     consultas M (.pq) que automatizam a mesma limpeza
+│   ├── 01-excel/          planilha tratada por fórmulas (PROCX, ÍNDICE/CORRESP, VALORNUMERO), validação e formatação condicional + dados brutos
+│   ├── 02-powerquery/     consultas M (.pq) que automatizam a mesma limpeza + web scraping e unpivot
 │   ├── 03-powerpivot/     Star Schema, medidas DAX e gabarito de conferência
 │   └── 04-documentacao/   relatório parcial, dicionário de dados, roteiro e legenda do vídeo
 └── MA2026-entrega-final/
     ├── 01-vba/                 macros de relatório diário/semanal (.bas)
     ├── 02-bancodedados-sql/    DDL, carga e consultas (SQLite e PostgreSQL)
     ├── 03-api-web/             câmbio (BCB/PTAX) e clima (Open-Meteo)
-    └── 04-powerbi-dashboard/   especificação do painel e tema do Power BI
+    └── 04-powerbi-dashboard/   IngressoData_Dashboard.pbix (3 páginas), projeto .pbip, prints e tema
 ```
 
 ## Modelo dimensional (Star Schema)

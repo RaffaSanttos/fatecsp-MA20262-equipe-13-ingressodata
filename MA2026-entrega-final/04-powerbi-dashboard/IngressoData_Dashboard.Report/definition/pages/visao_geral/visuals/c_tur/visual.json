@@ -1,0 +1,60 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.4.0/schema.json",
+  "name": "c_tur",
+  "position": {
+    "x": 1515,
+    "y": 20,
+    "z": 0,
+    "height": 150,
+    "width": 385,
+    "tabOrder": 0
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Fato_Vendas_Ingressos"
+                    }
+                  },
+                  "Property": "% Faturamento Turista"
+                }
+              },
+              "queryRef": "Fato_Vendas_Ingressos.% Faturamento Turista",
+              "nativeQueryRef": "% Faturamento Turista"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'% do faturamento vindo de turistas'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

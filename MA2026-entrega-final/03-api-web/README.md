@@ -21,4 +21,6 @@ python api_enriquecimento.py 2025-01-01 2026-06-30
 
 Gera `dim_cambio.csv` e `fato_clima.csv` só com a biblioteca padrão. Testes offline: `python -m unittest test_api_enriquecimento` (4 testes passando).
 
-Endpoints conferidos na documentação pública do BCB e do Open-Meteo; a chamada real não foi executada daqui (rede bloqueada no ambiente de geração). Rode uma vez na máquina de vocês antes da apresentação.
+**Execução real (22/11/2026):** `python api_enriquecimento.py 2025-01-01 2026-11-15` gerou `dados/dim_cambio.csv` (683 dias) e `dados/fato_clima.csv` (2.052 linhas = 3 praças × 684 dias). As mesmas consultas M rodaram no Power BI Desktop e alimentam o dashboard.
+
+**Correção no Open-Meteo:** a API responde com `Content-Encoding: deflate` no formato zlib, que o Power Query não decodifica ("Dados inválidos encontrados durante a decodificação"). `fnClimaPraca` agora pede `Accept-Encoding: gzip`.
